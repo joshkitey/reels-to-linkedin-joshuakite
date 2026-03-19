@@ -1,8 +1,8 @@
 import { useState, useRef } from "react";
 
 export default function VideoInput({ onVideoLoaded, onTranscriptReady }) {
-  const [mode, setMode] = useState("upload"); // upload | url | paste
-  const [url, setUrl] = useState("");
+  const [mode, setMode] = useState("upload"); // upload | paste
+
   const [dragOver, setDragOver] = useState(false);
   const [videoSrc, setVideoSrc] = useState(null);
   const [transcript, setTranscript] = useState("");
@@ -26,22 +26,12 @@ export default function VideoInput({ onVideoLoaded, onTranscriptReady }) {
     handleFile(file);
   }
 
-  function handleUrlSubmit() {
-    if (!url.trim()) return;
-    // Note: Direct IG URL loading won't work due to CORS
-    // Show guidance to download and upload instead
-    alert(
-      "Due to Instagram's restrictions, direct URL loading isn't possible in the browser.\n\nInstead:\n1. Open the reel in Instagram\n2. Tap the 3 dots → Save / Download\n3. Upload the saved video here\n\nOr paste the transcript directly!"
-    );
-  }
-
   return (
     <div className="space-y-6">
       {/* Mode tabs */}
       <div className="flex gap-2 justify-center">
         {[
           { key: "upload", label: "Upload Video" },
-          { key: "url", label: "Paste URL" },
           { key: "paste", label: "Paste Transcript" },
         ].map((tab) => (
           <button
@@ -91,31 +81,6 @@ export default function VideoInput({ onVideoLoaded, onTranscriptReady }) {
         </div>
       )}
 
-      {/* URL mode */}
-      {mode === "url" && (
-        <div className="space-y-3">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://www.instagram.com/reel/..."
-              className="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 text-gray-200 placeholder:text-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-            />
-            <button
-              onClick={handleUrlSubmit}
-              className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-500 transition-colors cursor-pointer"
-            >
-              Load
-            </button>
-          </div>
-          <p className="text-xs text-gray-500">
-            Tip: Download the reel from Instagram first, then upload the file
-            for best results.
-          </p>
-        </div>
-      )}
-
       {/* Paste transcript mode */}
       {mode === "paste" && (
         <div className="space-y-3">
@@ -147,48 +112,20 @@ export default function VideoInput({ onVideoLoaded, onTranscriptReady }) {
             ref={videoRef}
             src={videoSrc}
             controls
+            muted
+            playsInline
+            preload="metadata"
             className="w-full max-w-md mx-auto rounded-xl"
           />
-          <div className="flex gap-2 justify-center">
-            <button
-              onClick={async () => {
-                const {
-                  transcribeFromAudio,
-                  isTranscriptionSupported,
-                } = await import("../lib/transcriber.js");
-                if (!isTranscriptionSupported()) {
-                  alert(
-                    "Speech recognition not supported. Please use Chrome, or paste the transcript manually."
-                  );
-                  setMode("paste");
-                  return;
-                }
-                try {
-                  const text = await transcribeFromAudio(videoRef.current);
-                  if (text) {
-                    onTranscriptReady?.(text);
-                  } else {
-                    alert(
-                      "Could not detect speech. Try pasting the transcript instead."
-                    );
-                    setMode("paste");
-                  }
-                } catch (err) {
-                  alert(err.message);
-                  setMode("paste");
-                }
-              }}
-              className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-500 transition-colors cursor-pointer"
-            >
-              Transcribe & Convert
-            </button>
-            <button
-              onClick={() => setMode("paste")}
-              className="px-6 py-3 bg-gray-700 text-gray-200 rounded-xl font-medium hover:bg-gray-600 transition-colors cursor-pointer"
-            >
-              Paste Transcript Instead
-            </button>
-          </div>
+          <p className="text-sm text-gray-400 text-center">
+            Video uploaded. Now paste the transcript to convert it.
+          </p>
+          <button
+            onClick={() => setMode("paste")}
+            className="w-full px-6 py-3 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-500 transition-colors cursor-pointer"
+          >
+            Paste Transcript to Convert
+          </button>
         </div>
       )}
     </div>

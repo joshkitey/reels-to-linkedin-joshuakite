@@ -1,5 +1,6 @@
 // Browser-based transcription using Web Speech API
-// Falls back to manual transcript input if not supported
+// The video stays muted — Speech API uses the device microphone.
+// User plays the video near their mic, or pastes transcript manually.
 
 export function isTranscriptionSupported() {
   return !!(
@@ -37,6 +38,7 @@ export function transcribeFromAudio(videoElement) {
     };
 
     recognition.onerror = (event) => {
+      videoElement.pause();
       if (event.error === "no-speech") {
         resolve(fullTranscript.trim() || "");
       } else {
@@ -45,13 +47,15 @@ export function transcribeFromAudio(videoElement) {
     };
 
     recognition.onend = () => {
+      videoElement.pause();
       resolve(fullTranscript.trim());
     };
 
-    // Play the video and start recognition
+    // Play video MUTED — the Speech API listens via the device microphone.
+    // The user should have their device speaker playing the video near the mic,
+    // or they can use "Paste Transcript" for a better experience.
     videoElement.currentTime = 0;
-    videoElement.muted = false;
-    videoElement.volume = 1;
+    videoElement.muted = true;
     videoElement.play();
     recognition.start();
 
@@ -66,14 +70,4 @@ export function transcribeFromAudio(videoElement) {
       videoElement.pause();
     }, 300000);
   });
-}
-
-export function createMediaStreamFromVideo(videoElement) {
-  if (videoElement.captureStream) {
-    return videoElement.captureStream();
-  }
-  if (videoElement.mozCaptureStream) {
-    return videoElement.mozCaptureStream();
-  }
-  return null;
 }
