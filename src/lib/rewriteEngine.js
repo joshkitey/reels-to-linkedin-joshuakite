@@ -4,26 +4,26 @@
 // ── HOOKS ──
 // Short, punchy, lived experience, numbers, tension without giving away the solution
 const HOOKS = [
-  (topic, points) =>
-    `3 weeks ago my client was burning out from bad ${topic}.\nThen she made 1 tiny change.`,
-  (topic, points) =>
-    `6 months ago I couldn't get through a day without crashing by 2pm.\nDoctors said nothing was wrong.`,
-  (topic, points) =>
+  (topic) =>
     `2 years ago I slept 4 hours a night.\nStarted getting subtle chest pains.\nThen one day a sharp pain in my left chest woke me up.`,
-  (topic, points) =>
-    `I've worked with 147 clients on ${topic}.\n92% of them were making the same mistake.`,
-  (topic, points) =>
-    `8 weeks ago a CEO told me he hadn't had a full night's sleep in 3 years.\nHe was about to quit his company.`,
-  (topic, points) =>
-    `Last month I watched a 42-year-old executive break down in our session.\nHe'd been ignoring his ${topic} for a decade.`,
-  (topic, points) =>
-    `4 months ago my energy was so bad I cancelled 3 client calls in one week.\nThat was my wake-up call.`,
-  (topic, points) =>
-    `I used to think ${topic} was about willpower.\n11 years of coaching proved me dead wrong.`,
-  (topic, points) =>
-    `My client lost 23 pounds in 12 weeks.\nBut that's not why she cried on our last call.`,
-  (topic, points) =>
-    `5 years ago I was the unhealthiest health coach you've ever met.\nNobody knew.`,
+  (topic) =>
+    `6 months ago my client was drinking 6 coffees a day.\nHer hands started shaking in meetings.\nHer doctor told her she was heading for adrenal failure.`,
+  (topic) =>
+    `3 weeks ago a CEO messaged me at 2am.\nHe hadn't slept properly in 3 years.\nHis wife had just told him she was leaving.`,
+  (topic) =>
+    `8 months ago I collapsed in my kitchen.\nI'd been ignoring the warning signs for years.\nMy blood work came back and the numbers terrified me.`,
+  (topic) =>
+    `Last year I watched a 38-year-old client break down on a call.\nShe'd gained 30 pounds in 12 months.\nHer doctor said "everything looks normal."`,
+  (topic) =>
+    `4 months ago my client's energy was so bad she missed her daughter's recital.\nShe sat in the car park crying.\nThat was the day she finally called me.`,
+  (topic) =>
+    `I've seen 147 clients make the same ${topic} mistake.\n92% of them didn't know until the damage was done.\nOne ended up in hospital.`,
+  (topic) =>
+    `11 years ago I was the unhealthiest health coach alive.\nI hid it from everyone.\nThen my body gave me an ultimatum I couldn't ignore.`,
+  (topic) =>
+    `5 weeks ago a busy exec told me he hadn't felt "normal" in 2 years.\nHe was popping pills just to get through the day.\nHis family barely recognised him anymore.`,
+  (topic) =>
+    `9 months ago my client's ${topic} was so bad she quit her job.\nShe thought she was broken.\nEvery specialist said there was nothing wrong.`,
 ];
 
 // ── STORY TEMPLATES ──
