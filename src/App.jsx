@@ -1,16 +1,11 @@
 import { useState } from "react";
 import VideoInput from "./components/VideoInput";
 import TextPostPreview from "./components/TextPostPreview";
-import CarouselPreview from "./components/CarouselPreview";
-import {
-  generateTextPost,
-  generateCarouselSlides,
-} from "./lib/rewriteEngine";
+import { generateTextPost } from "./lib/rewriteEngine";
 
 function App() {
   const [transcript, setTranscript] = useState("");
   const [textPosts, setTextPosts] = useState([]);
-  const [carousels, setCarousels] = useState([]);
   const [isConverting, setIsConverting] = useState(false);
   const [hasResults, setHasResults] = useState(false);
 
@@ -18,20 +13,11 @@ function App() {
     setIsConverting(true);
     setTranscript(rawTranscript);
 
-    // Small delay for visual feedback
     setTimeout(() => {
-      // Generate 3 text post alternatives
       const posts = [0, 1, 2].map((v) =>
         generateTextPost(rawTranscript, v)
       );
       setTextPosts(posts);
-
-      // Generate 3 carousel alternatives
-      const carouselSets = [0, 1, 2].map((v) =>
-        generateCarouselSlides(rawTranscript, v)
-      );
-      setCarousels(carouselSets);
-
       setIsConverting(false);
       setHasResults(true);
     }, 800);
@@ -40,7 +26,6 @@ function App() {
   function handleReset() {
     setTranscript("");
     setTextPosts([]);
-    setCarousels([]);
     setHasResults(false);
   }
 
@@ -57,9 +42,7 @@ function App() {
               <h1 className="text-base font-semibold text-white leading-tight">
                 Reels to LinkedIn
               </h1>
-              <p className="text-xs text-gray-500">
-                by Joshua Kite
-              </p>
+              <p className="text-xs text-gray-500">by Joshua Kite</p>
             </div>
           </div>
           {hasResults && (
@@ -73,7 +56,7 @@ function App() {
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-4 py-8">
+      <main className="max-w-3xl mx-auto px-4 py-8">
         {!hasResults ? (
           <div className="space-y-8">
             {/* Hero */}
@@ -82,13 +65,13 @@ function App() {
                 Turn your IG Reels into
                 <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">
-                  LinkedIn content that converts
+                  LinkedIn posts that convert
                 </span>
               </h2>
               <p className="text-gray-400 max-w-lg mx-auto">
-                Upload a reel or paste your transcript. Get 3 text posts and 3
-                carousel alternatives — optimized for energy, health, and
-                longevity coaching.
+                Upload a reel or paste your transcript. Get 3 text post
+                alternatives — optimized for energy, health, and longevity
+                coaching.
               </p>
             </div>
 
@@ -145,7 +128,7 @@ function App() {
                     Converting to LinkedIn content...
                   </p>
                   <p className="text-sm text-gray-400">
-                    Generating 3 text posts + 3 carousels
+                    Generating 3 text post alternatives
                   </p>
                 </div>
               </div>
@@ -160,9 +143,7 @@ function App() {
                   Source Transcript
                 </span>
                 <button
-                  onClick={() => {
-                    setHasResults(false);
-                  }}
+                  onClick={() => setHasResults(false)}
                   className="text-xs text-emerald-400 hover:text-emerald-300 cursor-pointer"
                 >
                   Edit
@@ -173,11 +154,8 @@ function App() {
               </p>
             </div>
 
-            {/* Results grid */}
-            <div className="grid lg:grid-cols-2 gap-8">
-              <TextPostPreview posts={textPosts} />
-              <CarouselPreview carousels={carousels} />
-            </div>
+            {/* Text posts */}
+            <TextPostPreview posts={textPosts} />
 
             {/* Regenerate */}
             <div className="text-center">

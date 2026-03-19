@@ -1,73 +1,52 @@
-// Browser-based transcription using Web Speech API
-// The video stays muted — Speech API uses the device microphone.
-// User plays the video near their mic, or pastes transcript manually.
+// Browser-based transcription using HuggingFace Transformers (Whisper)
+// Extracts audio from video, resamples to 16kHz mono, runs Whisper model
 
-export function isTranscriptionSupported() {
-  return !!(
-    window.SpeechRecognition || window.webkitSpeechRecognition
+import { pipeline } from "@huggingface/transformers";
+
+let transcriber = null;
+
+export async function loadModel(onProgress) {
+  if (transcriber) return transcriber;
+  transcriber = await pipeline(
+    "automatic-speech-recognition",
+    "onnx-community/whisper-tiny.en",
+    {
+      dtype: "q8",
+      device: "wasm",
+      progress_callback: onProgress || undefined,
+    }
   );
+  return transcriber;
 }
 
-export function transcribeFromAudio(videoElement) {
-  return new Promise((resolve, reject) => {
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
+export async function extractAudioFromVideo(videoFile) {
+  const audioContext = new AudioContext({ sampleRate: 16000 });
+  const arrayBuffer = await videoFile.arrayBuffer();
+  const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 
-    if (!SpeechRecognition) {
-      reject(
-        new Error(
-          "Speech recognition not supported in this browser. Please use Chrome or paste transcript manually."
-        )
-      );
-      return;
+  // Mix down to mono at 16kHz
+  const monoData = new Float32Array(audioBuffer.length);
+  const numChannels = audioBuffer.numberOfChannels;
+  for (let ch = 0; ch < numChannels; ch++) {
+    const channelData = audioBuffer.getChannelData(ch);
+    for (let i = 0; i < audioBuffer.length; i++) {
+      monoData[i] += channelData[i] / numChannels;
     }
+  }
 
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = false;
-    recognition.lang = "en-US";
+  await audioContext.close();
+  return monoData;
+}
 
-    let fullTranscript = "";
+export async function transcribeVideo(videoFile, onProgress) {
+  const model = await loadModel(onProgress);
+  const audioData = await extractAudioFromVideo(videoFile);
 
-    recognition.onresult = (event) => {
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        if (event.results[i].isFinal) {
-          fullTranscript += event.results[i][0].transcript + " ";
-        }
-      }
-    };
-
-    recognition.onerror = (event) => {
-      videoElement.pause();
-      if (event.error === "no-speech") {
-        resolve(fullTranscript.trim() || "");
-      } else {
-        reject(new Error(`Speech recognition error: ${event.error}`));
-      }
-    };
-
-    recognition.onend = () => {
-      videoElement.pause();
-      resolve(fullTranscript.trim());
-    };
-
-    // Play video MUTED — the Speech API listens via the device microphone.
-    // The user should have their device speaker playing the video near the mic,
-    // or they can use "Paste Transcript" for a better experience.
-    videoElement.currentTime = 0;
-    videoElement.muted = true;
-    videoElement.play();
-    recognition.start();
-
-    // Stop when video ends
-    videoElement.onended = () => {
-      recognition.stop();
-    };
-
-    // Safety timeout at 5 minutes
-    setTimeout(() => {
-      recognition.stop();
-      videoElement.pause();
-    }, 300000);
+  const result = await model(audioData, {
+    chunk_length_s: 30,
+    stride_length_s: 5,
+    return_timestamps: false,
   });
+
+  return result.text.trim();
 }

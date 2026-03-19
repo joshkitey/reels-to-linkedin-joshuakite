@@ -1,30 +1,65 @@
 import { useState, useRef } from "react";
+import { transcribeVideo } from "../lib/transcriber";
 
-export default function VideoInput({ onVideoLoaded, onTranscriptReady }) {
+export default function VideoInput({ onTranscriptReady }) {
   const [mode, setMode] = useState("upload"); // upload | paste
-
   const [dragOver, setDragOver] = useState(false);
-  const [videoSrc, setVideoSrc] = useState(null);
   const [transcript, setTranscript] = useState("");
+  const [status, setStatus] = useState(""); // "" | "loading-model" | "extracting" | "transcribing" | "error"
+  const [progress, setProgress] = useState("");
   const fileRef = useRef();
-  const videoRef = useRef();
+  const videoFileRef = useRef(null);
 
-  function handleFile(file) {
+  async function handleFile(file) {
     if (!file || !file.type.startsWith("video/")) {
       alert("Please upload a video file (MP4, MOV, etc.)");
       return;
     }
-    const objectUrl = URL.createObjectURL(file);
-    setVideoSrc(objectUrl);
-    onVideoLoaded?.(objectUrl, videoRef);
+    videoFileRef.current = file;
+    setStatus("loading-model");
+    setProgress("Downloading transcription model (first time only)...");
+
+    try {
+      const text = await transcribeVideo(file, (event) => {
+        if (event.status === "download" || event.status === "progress") {
+          const pct = event.progress ? Math.round(event.progress) : 0;
+          setProgress(`Loading model... ${pct}%`);
+          setStatus("loading-model");
+        } else if (event.status === "done") {
+          setStatus("transcribing");
+          setProgress("Transcribing audio...");
+        }
+      });
+
+      if (text && text.trim()) {
+        setStatus("");
+        setProgress("");
+        onTranscriptReady?.(text.trim());
+      } else {
+        setStatus("error");
+        setProgress(
+          "Could not detect speech in this video. Try pasting the transcript instead."
+        );
+      }
+    } catch (err) {
+      console.error("Transcription error:", err);
+      setStatus("error");
+      setProgress(
+        `Transcription failed: ${err.message}. Try pasting the transcript instead.`
+      );
+    }
   }
 
   function handleDrop(e) {
     e.preventDefault();
     setDragOver(false);
-    const file = e.dataTransfer.files[0];
-    handleFile(file);
+    handleFile(e.dataTransfer.files[0]);
   }
+
+  const isProcessing =
+    status === "loading-model" ||
+    status === "extracting" ||
+    status === "transcribing";
 
   return (
     <div className="space-y-6">
@@ -36,8 +71,9 @@ export default function VideoInput({ onVideoLoaded, onTranscriptReady }) {
         ].map((tab) => (
           <button
             key={tab.key}
-            onClick={() => setMode(tab.key)}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+            onClick={() => !isProcessing && setMode(tab.key)}
+            disabled={isProcessing}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
               mode === tab.key
                 ? "bg-emerald-600 text-white"
                 : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-gray-200"
@@ -49,7 +85,7 @@ export default function VideoInput({ onVideoLoaded, onTranscriptReady }) {
       </div>
 
       {/* Upload mode */}
-      {mode === "upload" && (
+      {mode === "upload" && !isProcessing && status !== "error" && (
         <div
           onDragOver={(e) => {
             e.preventDefault();
@@ -78,6 +114,53 @@ export default function VideoInput({ onVideoLoaded, onTranscriptReady }) {
           <p className="text-sm text-gray-500 mt-1">
             or click to browse (MP4, MOV, WebM)
           </p>
+          <p className="text-xs text-gray-600 mt-3">
+            Audio will be automatically transcribed and converted
+          </p>
+        </div>
+      )}
+
+      {/* Processing state */}
+      {isProcessing && (
+        <div className="border border-gray-700 rounded-2xl p-10 text-center space-y-4">
+          <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-lg text-white font-medium">
+            {status === "loading-model" && "Loading AI model..."}
+            {status === "extracting" && "Extracting audio..."}
+            {status === "transcribing" && "Transcribing..."}
+          </p>
+          <p className="text-sm text-gray-400">{progress}</p>
+          <p className="text-xs text-gray-600">
+            First time takes ~30s to download the model. After that it's cached.
+          </p>
+        </div>
+      )}
+
+      {/* Error state */}
+      {status === "error" && (
+        <div className="border border-red-800 bg-red-900/20 rounded-2xl p-6 text-center space-y-3">
+          <p className="text-sm text-red-300">{progress}</p>
+          <div className="flex gap-2 justify-center">
+            <button
+              onClick={() => {
+                setStatus("");
+                setProgress("");
+              }}
+              className="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg text-sm hover:bg-gray-700 cursor-pointer"
+            >
+              Try Again
+            </button>
+            <button
+              onClick={() => {
+                setStatus("");
+                setProgress("");
+                setMode("paste");
+              }}
+              className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-500 cursor-pointer"
+            >
+              Paste Transcript Instead
+            </button>
+          </div>
         </div>
       )}
 
@@ -101,30 +184,6 @@ export default function VideoInput({ onVideoLoaded, onTranscriptReady }) {
             className="w-full px-6 py-3 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
             Convert to LinkedIn Content
-          </button>
-        </div>
-      )}
-
-      {/* Video preview */}
-      {videoSrc && (
-        <div className="space-y-3">
-          <video
-            ref={videoRef}
-            src={videoSrc}
-            controls
-            muted
-            playsInline
-            preload="metadata"
-            className="w-full max-w-md mx-auto rounded-xl"
-          />
-          <p className="text-sm text-gray-400 text-center">
-            Video uploaded. Now paste the transcript to convert it.
-          </p>
-          <button
-            onClick={() => setMode("paste")}
-            className="w-full px-6 py-3 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-500 transition-colors cursor-pointer"
-          >
-            Paste Transcript to Convert
           </button>
         </div>
       )}
