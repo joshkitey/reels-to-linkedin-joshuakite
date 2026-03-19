@@ -1,45 +1,122 @@
 // Health coach LinkedIn rewrite engine
-// Converts raw transcript into LinkedIn-optimized content
+// Framework: Hook (tension + lived experience) → Story (Before > Then > After) → Insight → CTA
 
+// ── HOOKS ──
+// Short, punchy, lived experience, numbers, tension without giving away the solution
 const HOOKS = [
-  (topic) => `The ${topic} that changed everything for my client.`,
-  (topic) => `I told my client to try this ${topic} hack. 3 weeks later, they couldn't believe the results.`,
-  (topic) => `Most people get ${topic} completely wrong. Here's what actually works.`,
-  (topic) => `My executive client was skeptical about ${topic}. Until this happened.`,
-  (topic) => `Stop scrolling if you struggle with ${topic}. This is the post you've been waiting for.`,
-  (topic) => `"I wish someone told me this about ${topic} 10 years ago." — my client last week.`,
-  (topic) => `The truth about ${topic} that no one in the wellness space talks about.`,
-  (topic) => `I've coached 100+ clients on ${topic}. Here's the #1 mistake I see.`,
-  (topic) => `Your ${topic} routine is probably sabotaging your energy. Here's why.`,
-  (topic) => `What if everything you believed about ${topic} was wrong?`,
+  (topic, points) =>
+    `3 weeks ago my client was burning out from bad ${topic}.\nThen she made 1 tiny change.`,
+  (topic, points) =>
+    `6 months ago I couldn't get through a day without crashing by 2pm.\nDoctors said nothing was wrong.`,
+  (topic, points) =>
+    `2 years ago I slept 4 hours a night.\nStarted getting subtle chest pains.\nThen one day a sharp pain in my left chest woke me up.`,
+  (topic, points) =>
+    `I've worked with 147 clients on ${topic}.\n92% of them were making the same mistake.`,
+  (topic, points) =>
+    `8 weeks ago a CEO told me he hadn't had a full night's sleep in 3 years.\nHe was about to quit his company.`,
+  (topic, points) =>
+    `Last month I watched a 42-year-old executive break down in our session.\nHe'd been ignoring his ${topic} for a decade.`,
+  (topic, points) =>
+    `4 months ago my energy was so bad I cancelled 3 client calls in one week.\nThat was my wake-up call.`,
+  (topic, points) =>
+    `I used to think ${topic} was about willpower.\n11 years of coaching proved me dead wrong.`,
+  (topic, points) =>
+    `My client lost 23 pounds in 12 weeks.\nBut that's not why she cried on our last call.`,
+  (topic, points) =>
+    `5 years ago I was the unhealthiest health coach you've ever met.\nNobody knew.`,
 ];
 
+// ── STORY TEMPLATES ──
+// Before > Then this happened > After (5 lines max)
+const STORIES = [
+  (before, insight) =>
+    `Before: ${before}\nI was exhausted, frustrated, and ready to give up.\n\nThen I discovered something that changed everything.\n\nWithin 2 weeks, the difference was night and day.`,
+  (before, insight) =>
+    `The old way: grinding through the day on caffeine and willpower.\nThe breaking point: my body finally said no.\n\nSo I stripped everything back to basics.\n\n3 weeks later — I didn't recognise my own energy.`,
+  (before, insight) =>
+    `She came to me running on empty. 6 coffees. Zero energy by lunch.\n\nI gave her one protocol. Just one.\n\nDay 14: "I feel like a different person."`,
+  (before, insight) =>
+    `For years I told myself "I'll fix this later."\nLater never came. My health got worse.\n\nUntil I made one non-negotiable change.\n\nEverything shifted.`,
+  (before, insight) =>
+    `He was doing everything "right." Gym 5x a week. Clean eating.\nStill felt terrible.\n\nTurns out he was missing the one thing that actually mattered.\n\nOnce we fixed it — everything clicked.`,
+  (before, insight) =>
+    `I used to wake up dreading the day ahead.\nNo energy. No motivation. Just survival mode.\n\nOne conversation changed my entire approach.\n\nNow I wake up before my alarm. Every single day.`,
+];
+
+// ── INSIGHT/FRAMEWORK SECTION ──
+const INSIGHTS = [
+  (points) =>
+    `Here's what most people get wrong:\n\nIt's not about doing more. It's about doing the right thing at the right time.\n\n${points[0] || "The body doesn't lie. Listen to it."}`,
+  (points) =>
+    `The framework is simple:\n\n1. ${points[0] || "Fix the foundation first"}\n2. ${points[1] || "Remove what's draining you"}\n3. ${points[2] || "Add what actually fuels you"}\n\nThat's it. No complicated protocols.`,
+  (points) =>
+    `What I've learned after 1,000+ coaching sessions:\n\n${points[0] || "Small changes compound faster than big overhauls."}\n\nThe people who win aren't the most disciplined.\nThey're the ones who find what works for THEIR body.`,
+  (points) =>
+    `Here's the truth nobody talks about:\n\n${points[0] || "Your body is giving you signals every single day."}\n\nThe question isn't whether you can feel better.\nIt's whether you'll stop ignoring what's right in front of you.`,
+  (points) =>
+    `The insight that changed everything for me:\n\n${points[0] || "Health isn't about perfection. It's about consistency."}\n\nOnce you understand this, the pressure drops.\nAnd ironically — that's when the results show up.`,
+];
+
+// ── CTAs ──
 const CTAS = [
-  "If this resonates, drop a comment below. I read every single one.",
-  "Save this post for later — you'll want to come back to it.\n\nFollow me for more actionable health insights.",
-  "Share this with someone who needs to hear it today.\n\nP.S. DM me 'ENERGY' if you want my free guide.",
-  "What's YOUR biggest struggle with this? Let me know in the comments.\n\nI'm Joshua — I help busy professionals reclaim their energy without overhauling their entire life.",
-  "Like this? Repost it to help someone in your network.\n\nFollow for daily health & longevity insights that actually work.",
-  "Comment 'YES' if you're ready to make this shift.\n\nDM me to learn how I help clients implement this in just 2 weeks.",
+  "If this hit home — drop a comment.\nI read every single one.",
+  "Save this. Come back to it when you need the reminder.\n\nFollow for more insights that actually move the needle.",
+  "Share this with someone who needs to hear it.\n\nP.S. DM me 'ENERGY' for my free protocol.",
+  "What's the one thing you've been ignoring about your health?\n\nTell me in the comments. I'll reply to every one.\n\nI'm Joshua — I help busy professionals reclaim their energy without overhauling their life.",
+  "Repost this if it resonated.\n\nFollow me for daily health insights that don't require a PhD to understand.",
+  "Comment 'READY' if you're done settling for low energy.\n\nDM me to see how I help clients fix this in 2 weeks.",
 ];
 
-const STATS = [
-  "Studies show this alone can improve energy levels by up to 27%.",
-  "Research from Harvard Medical School backs this up.",
-  "83% of my clients report noticeable changes within the first week.",
-  "This is backed by over 200 peer-reviewed studies.",
-  "The data is clear — and my clients are living proof.",
-  "According to recent longevity research, this is non-negotiable.",
-];
-
-const TRANSITIONS = [
-  "Here's what most people don't realize:",
-  "But here's the thing —",
-  "Let me break this down:",
-  "The science is simple:",
-  "After years of coaching, I've learned this:",
-  "Here's what I tell every new client:",
-];
+// ── TOPIC DETECTION ──
+const topicMap = {
+  smoothie: "nutrition",
+  recipe: "nutrition",
+  food: "nutrition",
+  eat: "nutrition",
+  diet: "nutrition",
+  meal: "nutrition",
+  protein: "nutrition",
+  vitamin: "nutrition",
+  supplement: "nutrition",
+  sleep: "sleep",
+  rest: "sleep",
+  morning: "morning routine",
+  routine: "daily routine",
+  exercise: "fitness",
+  workout: "fitness",
+  walk: "movement",
+  stretch: "movement",
+  yoga: "movement",
+  meditat: "mindfulness",
+  stress: "stress",
+  anxi: "stress",
+  breath: "breathwork",
+  cold: "cold exposure",
+  ice: "cold exposure",
+  fast: "fasting",
+  coffee: "caffeine",
+  caffein: "caffeine",
+  energy: "energy",
+  focus: "focus",
+  brain: "cognitive performance",
+  gut: "gut health",
+  digest: "gut health",
+  water: "hydration",
+  hydrat: "hydration",
+  sun: "light exposure",
+  light: "light exposure",
+  weight: "body composition",
+  fat: "body composition",
+  muscle: "strength",
+  age: "longevity",
+  longev: "longevity",
+  inflam: "inflammation",
+  immune: "immune health",
+  skin: "skin health",
+  hormone: "hormones",
+  testoster: "hormones",
+  cortisol: "stress hormones",
+};
 
 function extractKeyInsights(transcript) {
   const sentences = transcript
@@ -50,63 +127,13 @@ function extractKeyInsights(transcript) {
   const keywords = transcript.toLowerCase();
   const topics = [];
 
-  const topicMap = {
-    smoothie: "nutrition",
-    recipe: "nutrition",
-    food: "nutrition",
-    eat: "nutrition",
-    diet: "nutrition",
-    meal: "nutrition",
-    protein: "nutrition",
-    vitamin: "nutrition",
-    supplement: "nutrition",
-    sleep: "sleep optimization",
-    rest: "sleep optimization",
-    morning: "morning routine",
-    routine: "daily routine",
-    exercise: "fitness",
-    workout: "fitness",
-    walk: "movement",
-    stretch: "movement",
-    yoga: "movement",
-    meditat: "mindfulness",
-    stress: "stress management",
-    anxi: "stress management",
-    breath: "breathwork",
-    cold: "cold exposure",
-    ice: "cold exposure",
-    fast: "intermittent fasting",
-    coffee: "caffeine optimization",
-    caffein: "caffeine optimization",
-    energy: "energy optimization",
-    focus: "cognitive performance",
-    brain: "cognitive performance",
-    gut: "gut health",
-    digest: "gut health",
-    water: "hydration",
-    hydrat: "hydration",
-    sun: "light exposure",
-    light: "light exposure",
-    weight: "body composition",
-    fat: "body composition",
-    muscle: "strength building",
-    age: "longevity",
-    longev: "longevity",
-    inflam: "inflammation reduction",
-    immune: "immune optimization",
-    skin: "skin health",
-    hormone: "hormonal balance",
-    testoster: "hormonal balance",
-    cortisol: "stress hormones",
-  };
-
   for (const [keyword, topic] of Object.entries(topicMap)) {
     if (keywords.includes(keyword) && !topics.includes(topic)) {
       topics.push(topic);
     }
   }
 
-  if (topics.length === 0) topics.push("health optimization");
+  if (topics.length === 0) topics.push("health");
 
   return {
     sentences,
@@ -116,37 +143,18 @@ function extractKeyInsights(transcript) {
   };
 }
 
-function pickRandom(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
-function pickRandomN(arr, n) {
-  const shuffled = [...arr].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, n);
-}
-
+// ── MAIN GENERATOR ──
 function generateTextPost(transcript, variant = 0) {
   const { sentences, topics, mainTopic, keyPoints } =
     extractKeyInsights(transcript);
 
-  const hookPool = HOOKS.map((fn) => fn(mainTopic));
-  const hook = hookPool[variant % hookPool.length];
-  const transition = TRANSITIONS[variant % TRANSITIONS.length];
-  const stat = STATS[variant % STATS.length];
+  const hook = HOOKS[variant % HOOKS.length](mainTopic, keyPoints);
+  const story = STORIES[variant % STORIES.length](
+    keyPoints[0] || "I was stuck",
+    keyPoints[1] || ""
+  );
+  const insight = INSIGHTS[variant % INSIGHTS.length](keyPoints);
   const cta = CTAS[variant % CTAS.length];
-
-  const bodyPoints = keyPoints
-    .slice(0, 3)
-    .map((point, i) => {
-      const prefixes = [
-        ["First", "Then", "Finally"],
-        ["Step 1:", "Step 2:", "Step 3:"],
-        ["The truth is,", "Even better,", "And the best part?"],
-      ];
-      const prefix = prefixes[variant % prefixes.length][i] || "";
-      return `${prefix} ${point.charAt(0).toLowerCase() + point.slice(1)}`;
-    })
-    .join("\n\n");
 
   const topicTags = topics
     .slice(0, 3)
@@ -155,17 +163,15 @@ function generateTextPost(transcript, variant = 0) {
 
   const post = `${hook}
 
-${transition}
+${story}
 
-${bodyPoints}
-
-${stat}
+${insight}
 
 ---
 
 ${cta}
 
-${topicTags} #healthcoach #longevity #energyoptimization`;
+${topicTags} #healthcoach #longevity #energy`;
 
   return {
     content: post,
@@ -176,70 +182,4 @@ ${topicTags} #healthcoach #longevity #energyoptimization`;
   };
 }
 
-function generateCarouselSlides(transcript, variant = 0) {
-  const { sentences, topics, mainTopic, keyPoints } =
-    extractKeyInsights(transcript);
-
-  const titleTemplates = [
-    [
-      `The ${mainTopic} hack my clients swear by`,
-      (p) => p,
-      `${pickRandom(STATS)}`,
-      "Save this. Share this.\nYour future self will thank you.",
-    ],
-    [
-      `${mainTopic.charAt(0).toUpperCase() + mainTopic.slice(1)}: What I wish I knew sooner`,
-      (p) => `Most people: "${p}"\n\nWhat actually works:`,
-      "The results speak for themselves.",
-      "Follow for more insights\nthat actually move the needle.",
-    ],
-    [
-      `5-minute ${mainTopic} protocol for busy professionals`,
-      (p) => `Quick win: ${p}`,
-      `Why this matters:\n${pickRandom(STATS)}`,
-      "DM me 'PROTOCOL'\nfor my complete guide.",
-    ],
-  ];
-
-  const template = titleTemplates[variant % titleTemplates.length];
-
-  const slides = [
-    {
-      type: "cover",
-      headline: template[0],
-      subtitle: `by Joshua Kite | Health & Longevity Coach`,
-    },
-  ];
-
-  keyPoints.slice(0, 4).forEach((point, i) => {
-    slides.push({
-      type: "content",
-      slideNumber: i + 1,
-      headline: `Step ${i + 1}`,
-      body:
-        typeof template[1] === "function" ? template[1](point) : template[1],
-    });
-  });
-
-  slides.push({
-    type: "proof",
-    headline: "Why this works",
-    body: template[2],
-  });
-
-  slides.push({
-    type: "cta",
-    headline: template[3],
-    subtitle: "Joshua Kite\nHealth & Longevity Coach",
-  });
-
-  return {
-    slides,
-    mainTopic,
-    topics,
-    variant: variant + 1,
-    slideCount: slides.length,
-  };
-}
-
-export { generateTextPost, generateCarouselSlides, extractKeyInsights };
+export { generateTextPost, extractKeyInsights };
